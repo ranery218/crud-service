@@ -1,0 +1,12 @@
+server:
+  host: localhost
+  port: 8080
+postgres:
+  host: localhost
+  port: 5432
+  user: crud
+  password: ${POSTGRES_PASSWORD}
+  db: crud
+  sslmode: disable
+session:
+  ttl: "12h"
