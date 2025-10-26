@@ -13,18 +13,12 @@
 
 ## Подготовка окружения
 
-
-1. Создайте `.env` (используется VS Code/Makefile) и добавьте, например:
-   ```
-   POSTGRES_PASSWORD=crud
-   ```
-
-2. Поднимите Postgres:
+1. Поднимите Postgres:
    ```bash
    make db-up
    ```
 
-3. Накатите миграции:
+2. Накатите миграции:
    ```bash
    make migrate-up
    ```
