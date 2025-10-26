@@ -2,6 +2,7 @@ package config
 
 import (
 	"os"
+	"time"
 
 	"gopkg.in/yaml.v2"
 )
@@ -20,7 +21,7 @@ type Config struct {
 		SSLMode  string `yaml:"sslmode"`
 	} `yaml:"postgres"`
 	Session struct {
-		TTL string `yaml:"ttl"`
+		TTL time.Duration `yaml:"ttl"`
 	}
 }
 

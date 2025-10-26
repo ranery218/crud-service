@@ -1,8 +1,13 @@
 package user
 
-import "context"
+import (
+	"context"
+	"crud/internal/domain/entities"
 
-type Deleterequest struct {
+	"github.com/samber/mo"
+)
+
+type DeleteRequest struct {
 	ID string
 }
 
@@ -11,7 +16,7 @@ type DeleteResponse struct {
 }
 
 type DeleteRepository interface {
-	Delete(context.Context, string) error
+	Delete(context.Context, entities.UserFilterAttrs) error
 }
 
 type DeleteService struct {
@@ -24,11 +29,10 @@ func NewDeleteService(repo DeleteRepository) *DeleteService {
 	}
 }
 
-func (s *DeleteService) Delete(ctx context.Context, req Deleterequest) (DeleteResponse, error) {
-	err := s.Repo.Delete(ctx, req.ID)
+func (s *DeleteService) Delete(ctx context.Context, req DeleteRequest) (DeleteResponse, error) {
+	err := s.Repo.Delete(ctx, entities.UserFilterAttrs{ID: mo.Some(req.ID)})
 	if err != nil {
 		return DeleteResponse{Success: false}, err
 	}
-
 	return DeleteResponse{Success: true}, nil
 }

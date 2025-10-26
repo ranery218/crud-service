@@ -7,12 +7,15 @@ import (
 	"errors"
 	"log"
 	"net/http"
+
+	"github.com/samber/mo"
 )
 
 type UserHandler struct {
 	registerService *user.RegisterService
 	loginService    *user.LoginService
 	updateService   *user.UpdateService
+	deleteService   *user.DeleteService
 	logger          *log.Logger
 }
 
@@ -20,11 +23,13 @@ func NewUserHandler(
 	registerService *user.RegisterService,
 	loginService *user.LoginService,
 	updateService *user.UpdateService,
+	deleteService *user.DeleteService,
 	logger *log.Logger) *UserHandler {
 	return &UserHandler{
 		registerService: registerService,
 		loginService:    loginService,
 		updateService:   updateService,
+		deleteService:   deleteService,
 		logger:          logger,
 	}
 }
@@ -177,6 +182,7 @@ func (h *UserHandler) Logout(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	h.clearSessionCookie(w)
+
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -195,10 +201,21 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteError(w, http.StatusUnauthorized, "missing session")
 		return
 	}
+	email := updateReq.Email
+	username := updateReq.UserName
+	password := updateReq.Password
 	serviceRequest := user.UpdateRequest{
-		ID:       userID,
-		Username: updateReq.UserName,
-		Email:    updateReq.Email,
+		ID: userID,
+	}
+	switch {
+	case email != nil:
+		serviceRequest.Email = mo.Some(*email)
+		fallthrough
+	case username != nil:
+		serviceRequest.Username = mo.Some(*username)
+		fallthrough
+	case password != nil:
+		serviceRequest.Password = mo.Some(*password)
 	}
 	serviceResp, err := h.updateService.Update(ctx, serviceRequest)
 	if err != nil {
@@ -221,4 +238,33 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		h.logger.Printf("update: write response failed: %v", err)
 	}
+}
+
+func (h *UserHandler) Delete(w http.ResponseWriter, r *http.Request) {
+	userID, ok := middleware.UserIDFromContext(r.Context())
+	if !ok {
+		h.logger.Printf("delete: userID missing in context")
+		helpers.WriteError(w, http.StatusUnauthorized, "missing session")
+		return
+	}
+
+	serviceRequest := user.DeleteRequest{
+		ID: userID,
+	}
+
+	serviceResp, err := h.deleteService.Delete(r.Context(), serviceRequest)
+	if err != nil {
+		h.logger.Printf("delete: internal error: %v", err)
+		helpers.WriteError(w, http.StatusInternalServerError, "internal error")
+		return
+	}
+	if !serviceResp.Success {
+		h.logger.Printf("delete: deletion unsuccessful")
+		helpers.WriteError(w, http.StatusInternalServerError, "deletion unsuccessful")
+		return
+	}
+
+	h.clearSessionCookie(w)
+
+	w.WriteHeader(http.StatusNoContent)
 }

@@ -1,6 +1,13 @@
 package main
 
-func main() {
-	// This is a placeholder for the main function.
-}
+import (
+	"crud/cmd"
+	"log"
+)
 
+func main() {
+	err := cmd.RunServer()
+	if err != nil {
+		log.Fatal(err)
+	}
+}

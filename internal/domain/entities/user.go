@@ -16,6 +16,11 @@ type UserAttrs struct {
 	HashedPassword string
 }
 
+type UserUpdateAttrs struct {
+	Email          mo.Option[string]
+	Username       mo.Option[string]
+	HashedPassword mo.Option[string]
+}
 type UserFilterAttrs struct {
 	ID       mo.Option[string]
 	Email    mo.Option[string]

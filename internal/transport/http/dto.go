@@ -1,14 +1,14 @@
 package http
 
 type UserDTO struct {
-	ID string `json:"id"`
+	ID       string `json:"id"`
 	UserName string `json:"user_name"`
-	Email string  `json:"email"`
+	Email    string `json:"email"`
 }
 
 type RegisterRequest struct {
 	UserName string `json:"user_name"`
-	Email string  `json:"email"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
@@ -17,7 +17,7 @@ type RegisterResponse struct {
 }
 
 type LoginRequest struct {
-	Email string  `json:"email"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
@@ -26,8 +26,9 @@ type LoginResponse struct {
 }
 
 type UpdateRequest struct {
-	UserName string `json:"user_name"`
-	Email string  `json:"email"`
+	UserName *string `json:"user_name"`
+	Email    *string `json:"email"`
+	Password *string `json:"password"`
 }
 
 type UpdateResponse struct {

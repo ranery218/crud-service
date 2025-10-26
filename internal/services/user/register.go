@@ -20,21 +20,17 @@ type RegisterResponse struct {
 }
 
 type RegisterRepository interface {
-	Exists(ctx context.Context, filter entities.UserFilterAttrs) (bool, error)
 	Create(ctx context.Context, attrs entities.UserAttrs, ent *entities.User) error
-}
-
-type IDGenerator interface {
-	NewID(ctx context.Context) (string, error)
+	FindOne(ctx context.Context, filterAttrs entities.UserFilterAttrs, ent *entities.User) error
 }
 
 type RegisterService struct {
 	Repo   RegisterRepository
 	Hasher PasswordHasher
-	IdGen  IDGenerator
+	IdGen  IDGen
 }
 
-func NewRegisterService(repo RegisterRepository, hasher PasswordHasher, idGen IDGenerator) *RegisterService {
+func NewRegisterService(repo RegisterRepository, hasher PasswordHasher, idGen IDGen) *RegisterService {
 	return &RegisterService{
 		Repo:   repo,
 		Hasher: hasher,
@@ -67,27 +63,27 @@ func (s *RegisterService) Register(ctx context.Context, req RegisterRequest) (Re
 		return RegisterResponse{}, ErrPasswordIncorrect
 	}
 
-	emailExists, err := s.Repo.Exists(ctx, entities.UserFilterAttrs{
+	err := s.Repo.FindOne(ctx, entities.UserFilterAttrs{
 		Email: mo.Some(email),
-	})
-	if err != nil {
+	}, &entities.User{})
+	if err != ErrUserNotFound {
+		if err == nil {
+			return RegisterResponse{}, ErrEmailTaken
+		}
 		return RegisterResponse{}, err
 	}
-	if emailExists {
-		return RegisterResponse{}, ErrEmailTaken
-	}
 
-	usernameExists, err := s.Repo.Exists(ctx, entities.UserFilterAttrs{
+	err = s.Repo.FindOne(ctx, entities.UserFilterAttrs{
 		Username: mo.Some(username),
-	})
-	if err != nil {
+	}, &entities.User{})
+	if err != ErrUserNotFound {
+		if err == nil {
+			return RegisterResponse{}, ErrUsernameTaken
+		}
 		return RegisterResponse{}, err
 	}
-	if usernameExists {
-		return RegisterResponse{}, ErrUsernameTaken
-	}
 
-	id, err := s.IdGen.NewID(ctx)
+	id, err := s.IdGen.NewID()
 	if err != nil {
 		return RegisterResponse{}, err
 	}

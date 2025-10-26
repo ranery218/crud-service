@@ -17,6 +17,7 @@ func NewRouter(userHandler *UserHandler, authMiddleware *middleware.AuthMiddlewa
 		r.Use(authMiddleware.RequireAuth)
 		r.Post("/users/logout", userHandler.Logout)
 		r.Patch("/users/me", userHandler.Update)
+		r.Delete("/users/me", userHandler.Delete)
 	})
 	return r
 }

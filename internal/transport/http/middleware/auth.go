@@ -16,6 +16,12 @@ type AuthMiddleware struct {
 	sessionStore user.SessionStore
 }
 
+func NewAuthMiddleware(sessionStore user.SessionStore) *AuthMiddleware {
+	return &AuthMiddleware{
+		sessionStore: sessionStore,
+	}
+}
+
 func (s *AuthMiddleware) RequireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		cookie, err := r.Cookie("session_id")
