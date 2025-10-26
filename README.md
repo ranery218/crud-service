@@ -13,23 +13,18 @@
 
 ## Подготовка окружения
 
-1. Скопируйте шаблон конфигурации:
-   ```bash
-   cp config.yaml.example config.yaml    # если шаблон уже есть
-   ```
-   В `config.yaml` задаются хост/порт HTTP-сервера, параметры Postgres и TTL сессий. Пароль лучше прокидывать через переменные окружения (`POSTGRES_PASSWORD`).
 
-2. Создайте `.env` (используется VS Code/Makefile) и добавьте, например:
+1. Создайте `.env` (используется VS Code/Makefile) и добавьте, например:
    ```
    POSTGRES_PASSWORD=crud
    ```
 
-3. Поднимите Postgres:
+2. Поднимите Postgres:
    ```bash
    make db-up
    ```
 
-4. Накатите миграции:
+3. Накатите миграции:
    ```bash
    make migrate-up
    ```
