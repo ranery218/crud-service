@@ -1,6 +1,6 @@
 # CRUD Users Service
 
-Небольшой учебный сервис на Go, реализующий регистрацию, авторизацию и работу с профилем пользователя на Postgres с cookie-сессиями.
+Небольшой учебный сервис на Go, реализующий регистрацию, авторизацию и работу с профилем пользователя на Postgres, а сессии хранит в Redis (cookie `session_id`).
 
 ## Стек
 
@@ -8,12 +8,12 @@
 - Chi (маршрутизация)
 - pgx/pgxpool (Postgres)
 - Goose (миграции БД)
-- In-memory session store
-- Docker Compose (локальный Postgres)
+- Redis (хранилище сессий)
+- Docker Compose (Postgres + Redis)
 
 ## Подготовка окружения
 
-1. Поднимите Postgres:
+1. Поднимите Postgres и Redis:
    ```bash
    make db-up
    ```
@@ -53,8 +53,8 @@ go test ./...
 
 | Команда              | Действие                                      |
 |----------------------|-----------------------------------------------|
-| `make db-up`         | поднять Postgres из docker-compose            |
-| `make db-down`       | остановить Postgres                           |
+| `make db-up`         | поднять Postgres и Redis через docker-compose |
+| `make db-down`       | остановить все контейнеры docker-compose      |
 | `make migrate-up`    | накатывает все миграции                       |
 | `make migrate-down`  | откатывает последнюю миграцию                 |
 | `make migrate-status`| показывает статус миграций                    |
