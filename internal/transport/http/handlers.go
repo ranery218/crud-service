@@ -194,6 +194,7 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteError(w, http.StatusBadRequest, "invalid request")
 		return
 	}
+
 	ctx := r.Context()
 	userID, ok := middleware.UserIDFromContext(ctx)
 	if !ok {
@@ -201,9 +202,11 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteError(w, http.StatusUnauthorized, "missing session")
 		return
 	}
+
 	email := updateReq.Email
 	username := updateReq.UserName
 	password := updateReq.Password
+
 	serviceRequest := user.UpdateRequest{
 		ID: userID,
 	}
@@ -217,6 +220,7 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 	case password != nil:
 		serviceRequest.Password = mo.Some(*password)
 	}
+
 	serviceResp, err := h.updateService.Update(ctx, serviceRequest)
 	if err != nil {
 		if errors.Is(err, user.ErrUserNotFound) {
@@ -226,6 +230,7 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 		helpers.WriteError(w, http.StatusInternalServerError, "internal error")
 		return
 	}
+
 	user := serviceResp.User
 	updateReps := UpdateResponse{
 		User: UserDTO{
@@ -234,6 +239,7 @@ func (h *UserHandler) Update(w http.ResponseWriter, r *http.Request) {
 			Email:    user.Email,
 		},
 	}
+	
 	err = helpers.WriteJSON(w, http.StatusOK, updateReps)
 	if err != nil {
 		h.logger.Printf("update: write response failed: %v", err)

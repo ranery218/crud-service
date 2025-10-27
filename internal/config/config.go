@@ -20,6 +20,10 @@ type Config struct {
 		DB       string `yaml:"db"`
 		SSLMode  string `yaml:"sslmode"`
 	} `yaml:"postgres"`
+	Redis struct {
+		Host     string `yaml:"host"`
+		Port     int    `yaml:"port"`
+	} `yaml:"redis"`
 	Session struct {
 		TTL time.Duration `yaml:"ttl"`
 	}

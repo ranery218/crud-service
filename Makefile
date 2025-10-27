@@ -4,10 +4,10 @@ MIGRATIONS_DIR=./migrations
 .PHONY: migrate-up migrate-down migrate-status migrate-version migrate-create db-up db-down
 
 db-up:
-	docker compose up -d postgres
+	docker compose up -d postgres redis
 
 db-down:
-	docker compose down postgres
+	docker compose down
 
 migrate-up:
 	goose -dir $(MIGRATIONS_DIR) postgres "$(DB_DSN)" up

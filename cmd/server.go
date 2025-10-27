@@ -5,7 +5,7 @@ import (
 	id_gen "crud/internal/adapters/id_generator"
 	"crud/internal/adapters/password"
 	"crud/internal/adapters/repository/postgres"
-	"crud/internal/adapters/session"
+	redisStore "crud/internal/adapters/session/redis"
 	"crud/internal/config"
 	"crud/internal/services/user"
 	httpapi "crud/internal/transport/http"
@@ -18,6 +18,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
+	"github.com/redis/go-redis/v9"
 )
 
 func RunServer() error {
@@ -48,10 +49,13 @@ func RunServer() error {
 	repo := postgres.NewUserRepository(pool)
 	idGen := id_gen.NewDefaultIDGen()
 	hasher := password.NewBcryptHasher(0)
-	sessionStore, err := session.NewMemoryStore(config.Session.TTL, idGen.NewID)
-	if err != nil {
-		return fmt.Errorf("failed to create session store: %w", err)
-	}
+
+	rdb := redis.NewClient(&redis.Options{
+		Addr: fmt.Sprintf("%s:%d",config.Redis.Host,config.Redis.Port),
+		Password: "",
+		DB: 0,
+	})
+	sessionStore := redisStore.NewRedisStore(rdb, config.Session.TTL, idGen.NewID)
 
 	registerService := user.NewRegisterService(repo, hasher, idGen)
 	loginService := user.NewLoginService(repo, hasher, sessionStore)
